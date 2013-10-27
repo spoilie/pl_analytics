@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OX>
+    <OXMENU id="NAVIGATION_ESHOPADMIN">
+        <MAINMENU id="mxmainmenu">
+            <SUBMENU id="mxcoresett" cl="shop" list="shop_list">
+                <TAB id="tbclpl_analytics_setup" cl="pl_analytics_setup" />
+            </SUBMENU>
+        </MAINMENU>
+    </OXMENU>
+</OX>
