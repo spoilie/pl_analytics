@@ -12,8 +12,9 @@
 		'id'		=> 'pl_analytics',
 		'title'		=> 'paul-lamp.de Google Analytics eCommerce Tracking',
 		'version'	=> '0.1',
-		'author'	=> 'paul-lamp.de',
+		'author'	=> 'Paul Lamp / http://www.paul-lamp.de',
 		'email'		=> 'pl@paul-lamp.de',
+		'url'     => 'https://github.com/spoilie/pl_analytics',
 		
 		'description'	=> array(
 			'de'		=> 'Tracking mit Google Analytics',
