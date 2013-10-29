@@ -12,7 +12,7 @@ Die Konfiguration des Moduls erfolgt unter Admin->Stammdaten->Grundeinstellungen
 Hier muss der Google Analytics Tracking-Code (UA-XXXXXX-XX) angegeben werden, zusätzlich kann die Domain angegeben werden. 
 
 #English
---------
+-------- 
 ## Description
 Includes asynchronous Google Analytics Tracking Code, with eCommerce Code added to the thankyou-Page. 
 
