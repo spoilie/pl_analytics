@@ -160,7 +160,7 @@
                     $aFormed[] = $mPushParam;
                 }
             }
-            $sReturn .="\n_gaq.push([".implode(', ', $aFormed)."]);";
+            $sReturn .="\nga(".implode(', ', $aFormed).");";
         }
         return $sReturn;
     }
@@ -280,25 +280,21 @@
      */
     public function getPlAnalyticsCode()
     {
+
         $sPlAnalyticsCode = "<!-- Google Analytics Plugin pl_analytics by paul-lamp.de, sponsored by www.Fit-im-Sport.de -->\n";
-        $sPlAnalyticsCode .= '<script type="text/javascript">';
-        $sPlAnalyticsCode .= 'var _gaq = _gaq || [];';
-        $this->addPushParams('_setAccount', $this->getGaUaId());
-        $this->addPushParams('_gat._anonymizeIp');
-        $this->addPushParams('_trackPageview');
-
+        $sPlAnalyticsCode .= '<script type="text/javascript">' . "\n";
+		$sPlAnalyticsCode .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){" . "\n";
+		$sPlAnalyticsCode .= "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o)," . "\n";
+		$sPlAnalyticsCode .= "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)" . "\n";
+		$sPlAnalyticsCode .= "})(window,document,'script','//www.google-analytics.com/analytics.js','ga');" . "\n";
+		
+        $this->addPushParams('set', 'anonymizeIp', 'true');
+        $this->addPushParams('create', $this->getGaUaId(), $this->getConfigValue('ga_domain'));
+		$this->addPushParams('send', 'pageview');
         $this->_setGaParamsByViewObject();
-
-        $sPlAnalyticsCode .= $this->generateParams();
-        $sPlAnalyticsCode .= "
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })(); ";
-
-        $sPlAnalyticsCode .= '</script>';
-        $sPlAnalyticsCode .= '<!-- End Google Analytics -->';
+		$sPlAnalyticsCode .= $this->generateParams() . "\n";
+        $sPlAnalyticsCode .= '</script>' . "\n";
+        $sPlAnalyticsCode .= '<!-- End Google Analytics -->' . "\n";
         return $sPlAnalyticsCode;
     }
     
