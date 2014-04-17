@@ -209,49 +209,58 @@
             );
         }
     }
+	
+    /**
+     * @param order $oViewObject
+     * @return void
+     */
+    public function setGaParamsForOrder($oViewObject)
+    {			
+		$my_Basket     = $oViewObject->getBasket();
+		$my_NettoSum   = $my_Basket->getNettoSum();		
+		$my_BruttoSum  = $my_Basket->getBruttoSum();		
+		$my_ViewConfig = $oViewObject->getViewConfig();		
+
+		$ga_TransactionArray = Array(		
+            'GA_Method'          => '_addTrans',
+            'GA_TransactionID'   => $my_ViewConfig->getSessionId(),
+            'GA_Store'           => $this->getGaDomain(),
+            'GA_Total'		     => number_format($my_NettoSum,2),
+            'GA_Tax'             => number_format($my_BruttoSum - $my_NettoSum,2),
+            'GA_Shipping'	     => number_format($my_Basket->getDeliveryCosts(),2),
+            'GA_ShippingCity'    => $oViewObject->getUser()->oxuser__oxcity->value,
+            'GA_ShippingState'   => '',
+            'GA_ShippingCountry' => $oViewObject->getUser()->oxuser__oxcountry->value						
+		);
+		
+		$_SESSION['GA_OrderParams'] = $ga_TransactionArray;
+	}
+
     /**
      * @param Thankyou $oViewObject
      * @return void
      */
     public function setGaParamsForThankyou($oViewObject)
-    {
-        $oBasket = $oViewObject->getBasket();
-        $oOrder = $oViewObject->getOrder();
-        $dTaxAmount = $oOrder->oxorder__oxartvatprice1->value + $oOrder->oxorder__oxartvatprice2->value;
-        $dShippingTotal =
-                  $oOrder->getOrderDeliveryPrice()->getBruttoPrice()
-                + $oOrder->getOrderPaymentPrice() ->getBruttoPrice()
-                + $oOrder->getOrderWrappingPrice()->getBruttoPrice()
-        ;
-// TODO: Get State
-/*
-        if ( $oOrder->oxorder__oxbillstateid->value && $oOrder->oxorder__oxbillstateid->value != -1 ) {
-          $oState = oxNew( 'oxstates' );
-          $oState->load( $oOrder->oxorder__oxbillcountryid->value );
-          $sState = $oState->oxcountry__oxtitle;
-        }         
-*/
-        // Get Country
-        if ( $oOrder->oxorder__oxbillcountryid->value && $oOrder->oxorder__oxbillcountryid->value != -1 ) {
-          $oCountry = oxNew( 'oxcountry' );
-          $oCountry->load( $oOrder->oxorder__oxbillcountryid->value );
-          $sCountry = $oCountry->oxcountry__oxtitle;
-        }         
-        
-        $this->addPushParams(
-            '_addTrans',
-            $oOrder->oxorder__oxordernr->value,
-            $this->getGaDomain(),
-            $oOrder->oxorder__oxtotalnetsum->value,
-            number_format($dTaxAmount,2),
-            number_format($dShippingTotal,2),
-            $oOrder->oxorder__oxbillcity->value,
-            '',
-            (string)$sCountry
-        );
-        $this->_setEcommerceItemsByBasket($oBasket,$oOrder->oxorder__oxordernr->value);
-        $this->addPushParams('_trackTrans');
-        
+    {	
+		if (isset($_SESSION['GA_OrderParams']))
+		{
+			$my_gaTransactionArray = $_SESSION['GA_OrderParams'];
+			
+			$this->addPushParams(
+				$my_gaTransactionArray['GA_Method'],
+				$my_gaTransactionArray['GA_TransactionID'],
+				$my_gaTransactionArray['GA_Store'],
+				$my_gaTransactionArray['GA_Total'],
+				$my_gaTransactionArray['GA_Tax'],
+				$my_gaTransactionArray['GA_Shipping'],
+				$my_gaTransactionArray['GA_ShippingCity'],
+				$my_gaTransactionArray['GA_ShippingState'],
+				$my_gaTransactionArray['GA_ShippingCountry']
+			);
+
+			//$this->_setEcommerceItemsByBasket($oBasket,$oOrder->oxorder__oxordernr->value);
+			$this->addPushParams('_trackTrans');		
+		}
     }
 
     /**
