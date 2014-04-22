@@ -39,6 +39,11 @@
     const CONFIG_ENTRY_NAME = 'pl_analytics_config';
 
     protected $_aPushParams = array();
+	
+	//eCommerce Data
+	protected $_aTransactionParams = array();
+	protected $_aECommerceItems = array();
+	
     protected $_aConfig = array(
         'ga_ua_id' => array(
             'value'=> 'UA-XXXXXXXX-X',
@@ -217,20 +222,29 @@
     public function setGaParamsForOrder($oViewObject)
     {			
 		$my_Basket     = $oViewObject->getBasket();
-		$my_NettoSum   = $my_Basket->getNettoSum();		
 		$my_BruttoSum  = $my_Basket->getBruttoSum();		
 		$my_ViewConfig = $oViewObject->getViewConfig();		
+				
+		// GA Values:		
+		/* GA_TransactionID   */ $my_sid       = $my_ViewConfig->getSessionId();
+		/* GA_Total           */ $my_NettoSum  = number_format($my_Basket->getNettoSum(),2);
+		/* GA_Tax             */ $my_TaxAmount = number_format($my_BruttoSum - $my_NettoSum,2);
+		/* GA_Shipping        */ $my_delCost   = number_format($my_Basket->getDeliveryCosts(),2);
+        /* GA_ShippingCity    */ $my_City      = $oViewObject->getUser()->oxuser__oxcity->value;  		
+        /* GA_ShippingState   */ $my_State     = ''; 		
+        /* GA_ShippingCountry */ $my_Country   = $oViewObject->getUser()->oxuser__oxcountry->value;
+
 
 		$ga_TransactionArray = Array(		
             'GA_Method'          => '_addTrans',
-            'GA_TransactionID'   => $my_ViewConfig->getSessionId(),
+            'GA_TransactionID'   => $my_sid,
             'GA_Store'           => $this->getGaDomain(),
-            'GA_Total'		     => number_format($my_NettoSum,2),
-            'GA_Tax'             => number_format($my_BruttoSum - $my_NettoSum,2),
-            'GA_Shipping'	     => number_format($my_Basket->getDeliveryCosts(),2),
-            'GA_ShippingCity'    => $oViewObject->getUser()->oxuser__oxcity->value,
-            'GA_ShippingState'   => '',
-            'GA_ShippingCountry' => $oViewObject->getUser()->oxuser__oxcountry->value						
+            'GA_Total'		     => $my_NettoSum,
+            'GA_Tax'             => $my_TaxAmount,
+            'GA_Shipping'	     => $my_delCost,
+            'GA_ShippingCity'    => $my_City,
+            'GA_ShippingState'   => $my_State,
+            'GA_ShippingCountry' => $my_Country						
 		);
 		
 		$_SESSION['GA_OrderParams'] = $ga_TransactionArray;
@@ -244,6 +258,8 @@
     {	
 		if (isset($_SESSION['GA_OrderParams']))
 		{
+			$this->addPushParams('require', 'ecommerce', 'ecommerce.js');
+			
 			$my_gaTransactionArray = $_SESSION['GA_OrderParams'];
 			
 			$this->addPushParams(
@@ -258,8 +274,15 @@
 				$my_gaTransactionArray['GA_ShippingCountry']
 			);
 
+			$this->_aTransactionParams['id']          = $my_gaTransactionArray['GA_TransactionID'];
+			$this->_aTransactionParams['affiliation'] = $my_gaTransactionArray['GA_Store'];
+			$this->_aTransactionParams['revenue']     = ($my_gaTransactionArray['GA_Total'] + $my_gaTransactionArray['GA_Tax'] + $my_gaTransactionArray['GA_Shipping']);
+			$this->_aTransactionParams['shipping']    = $my_gaTransactionArray['GA_Shipping'];
+			$this->_aTransactionParams['tax']         = $my_gaTransactionArray['GA_Tax'];			
+
 			//$this->_setEcommerceItemsByBasket($oBasket,$oOrder->oxorder__oxordernr->value);
-			$this->addPushParams('_trackTrans');		
+			//$this->addPushParams('ecommerce:send');		
+			//$this->addPushParams('_trackTrans');		
 		}
     }
 
@@ -301,8 +324,27 @@
         $this->addPushParams('create', $this->getGaUaId(), $this->getConfigValue('ga_domain'));
 		$this->addPushParams('send', 'pageview');
         $this->_setGaParamsByViewObject();
+
 		$sPlAnalyticsCode .= $this->generateParams() . "\n";
-        $sPlAnalyticsCode .= '</script>' . "\n";
+		
+		if($myActiveClass=='thankyou' && count($this->_aTransactionParams)>=4)
+		{		
+			$sPlAnalyticsCode .=	"" . "\n";
+			$sPlAnalyticsCode .=	"ga('ecommerce:addTransaction', {" . "\n";
+			$sPlAnalyticsCode .=	"'id':          '" . $this->_aTransactionParams['id']          . "'," . "\n";	// Transaction ID. Required.
+			$sPlAnalyticsCode .=	"'affiliation': '" . $this->_aTransactionParams['affiliation'] . "'," . "\n";	// Affiliation or store name.
+			$sPlAnalyticsCode .=	"'revenue':     '" . $this->_aTransactionParams['revenue']     . "'," . "\n";	// Grand Total.
+			$sPlAnalyticsCode .=	"'shipping':    '" . $this->_aTransactionParams['shipping']    . "'," . "\n";	// Shipping.
+			$sPlAnalyticsCode .=	"'tax':         '" . $this->_aTransactionParams['tax']         . "'," . "\n";	// Tax.
+			$sPlAnalyticsCode .=	"'currency':    'EUR'"                                                . "\n";	// EUR.
+			$sPlAnalyticsCode .=	"});" . "\n";
+			$sPlAnalyticsCode .=	"" . "\n";	
+			
+		$sPlAnalyticsCode .= "ga('ecommerce:send');" . "\n";
+		}
+		
+
+        $sPlAnalyticsCode .= '</script>' . "\n";		
         $sPlAnalyticsCode .= '<!-- End Google Analytics -->' . "\n";
         return $sPlAnalyticsCode;
     }
