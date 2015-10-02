@@ -78,7 +78,7 @@ class pl_analytics_setup extends oxAdminDetails
      */
     public function save()
     {
-        $aParams = oxConfig::getParameter( "editval" );
+        $aParams = oxRegistry::getConfig()->getRequestParameter( "editval" );
         $oPlAnalytics = $this->getPlAnalytics();
         $oPlAnalytics->changeConfig($aParams);
     }

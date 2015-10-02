@@ -72,7 +72,7 @@
 
     protected function _loadConfig()
     {
-        $aSavedConfig = oxConfig::getInstance()->getShopConfVar(self::CONFIG_ENTRY_NAME);
+        $aSavedConfig = oxRegistry::getConfig()->getShopConfVar(self::CONFIG_ENTRY_NAME);
         if ($aSavedConfig && count($aSavedConfig) == count($this->_aConfig)) {
             $this->_aConfig = $aSavedConfig;
         }
@@ -84,7 +84,7 @@
 
     protected function _saveConfig()
     {
-        oxConfig::getInstance()->saveShopConfVar( 'arr', self::CONFIG_ENTRY_NAME, $this->_aConfig );
+        oxRegistry::getConfig()->saveShopConfVar( 'arr', self::CONFIG_ENTRY_NAME, $this->_aConfig );
     }
 
     public function getConfig()
@@ -113,7 +113,7 @@
      */
     protected function _getViewOrder()
     {
-        return oxConfig::getInstance()->getActiveView();
+        return oxRegistry::getConfig()->getActiveView();
     }
 
     /**
@@ -191,7 +191,11 @@
      */
     public function getGaDomain()
     {
-        return $this->getConfigValue('ga_domain');
+        $sDomain = "auto";
+        if($this->getConfigValue('ga_domain') != "domain.tld") {
+            $sDomain = $this->getConfigValue('ga_domain');
+        }
+        return $sDomain;
     }
 
     /**
@@ -319,9 +323,9 @@
 		$sPlAnalyticsCode .= "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o)," . "\n";
 		$sPlAnalyticsCode .= "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)" . "\n";
 		$sPlAnalyticsCode .= "})(window,document,'script','//www.google-analytics.com/analytics.js','ga');" . "\n";
-		
+                
         $this->addPushParams('set', 'anonymizeIp', 'true');
-        $this->addPushParams('create', $this->getGaUaId(), $this->getConfigValue('ga_domain'));
+        $this->addPushParams('create', $this->getGaUaId(), $this->getGaDomain());
 		$this->addPushParams('send', 'pageview');
         $this->_setGaParamsByViewObject();
 

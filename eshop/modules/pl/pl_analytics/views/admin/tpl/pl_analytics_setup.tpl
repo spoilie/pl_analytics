@@ -1,19 +1,19 @@
 [{include file="headitem.tpl" title="GENERAL_ADMIN_TITLE"|oxmultilangassign}]
-[{ if $readonly }]
-[{assign var="readonly" value="readonly disabled"}]
+[{if $readonly}]
+    [{assign var="readonly" value="readonly disabled"}]
 [{else}]
-[{assign var="readonly" value=""}]
+    [{assign var="readonly" value=""}]
 [{/if}]
-<form name="transfer" id="transfer" action="[{ $oViewConf->getSelfLink() }]" method="post">
-    [{ $oViewConf->getHiddenSid() }]
+<form name="transfer" id="transfer" action="[{$oViewConf->getSelfLink()}]" method="post">
+    [{$oViewConf->getHiddenSid()}]
     <input type="hidden" name="cl" value="pl_analytics_setup">
-    <input type="hidden" name="language" value="[{ $actlang }]">
+    <input type="hidden" name="language" value="[{$actlang}]">
 </form>
-<form name="myedit" id="myedit" action="[{ $oViewConf->getSelfLink() }]" method="post">
-	[{ $oViewConf->getHiddenSid() }]
+<form name="myedit" id="myedit" action="[{$oViewConf->getSelfLink()}]" method="post">
+	[{$oViewConf->getHiddenSid()}]
 	<input type="hidden" name="cl" value="pl_analytics_setup">
 	<input type="hidden" name="fnc" value="">
-	<input type="hidden" name="language" value="[{ $actlang }]">
+	<input type="hidden" name="language" value="[{$actlang}]">
 	<table cellspacing="0" cellpadding="0" border="0" width="98%">
 		<tr>
 			<td valign="top" class="edittext">
@@ -21,7 +21,7 @@
 					[{foreach from=$oView->getConfigValues() item='aConfigValueOptions' key='sConfigKey'}]
 					<tr>
 						<td class="edittext">
-							[{ oxmultilang ident="PL_ANALYTICS_CONFIG_"|cat:$sConfigKey }]
+							[{oxmultilang ident="PL_ANALYTICS_CONFIG_"|cat:$sConfigKey}]
                              
 						</td>
 						<td class="edittext">
@@ -29,7 +29,7 @@
                         
 							<input type="text" class="editinput" size="40" maxlength="255"
                                
-								   name="editval[[{$sConfigKey}]]" value="[{$aConfigValueOptions.value}]" [{ $readonly }]>
+								   name="editval[[{$sConfigKey}]]" value="[{$aConfigValueOptions.value}]" [{$readonly}]>
 							[{/if}]
 							[{if $aConfigValueOptions.input_type == 'select'}]
                              
@@ -41,7 +41,7 @@
 							</select>
                             
 							[{/if}]
-							[{ oxinputhelp ident="HELP_PL_ANALYTICS_CONFIG_"|cat:$sConfigKey }]
+							[{oxinputhelp ident="HELP_PL_ANALYTICS_CONFIG_"|cat:$sConfigKey}]
 						</td>
 					</tr>
 					[{/foreach}]
@@ -52,8 +52,8 @@
 						</td>
 						<td valign="top" class="edittext"><br><br>
 							<input type="submit" class="edittext" id="oLockButton"
-								   value="[{ oxmultilang ident="GENERAL_SAVE" }]"
-								   onclick="Javascript:document.myedit.fnc.value='save'"" [{ $readonly }]><br>
+								   value="[{oxmultilang ident="GENERAL_SAVE"}]"
+								   onclick="Javascript:document.myedit.fnc.value='save' [{$readonly}]><br>
 						</td>
                         
 					</tr>
